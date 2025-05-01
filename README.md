@@ -1,15 +1,15 @@
-## Cách chạy
+# Cách chạy
 
 ```bash
 py othello.py <black_engine> <white_engine> [options]
-
-Tham số bắt buộc:
+```
+## Tham số bắt buộc:
 
 <black_engine>: Tên engine cho quân đen (human, minimax, alpha)
 
 <white_engine>: Tên engine cho quân trắng (human, minimax, alpha)
 
-Tùy chọn thêm:
+## Tùy chọn thêm:
 
 | Tham số     | Mô tả |
 |-------------|------|
@@ -19,4 +19,3 @@ Tùy chọn thêm:
 | `-v`        | Hiển thị bàn cờ sau mỗi lượt |
 | `-lB <int>` | Độ sâu thuật toán của người chơi đen. Mặc định: `4` |
 | `-lW <int>` | Độ sâu thuật toán của người chơi trắng. Mặc định: `4` |
-```
