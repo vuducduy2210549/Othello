@@ -87,7 +87,7 @@ class Board():
         color gives the color of the piece to play (1 for white, -1 for black) """
         # Start at the new piece's square and follow it on all 8 directions
         # to look for pieces allowing flipping
-
+        
         # Add the piece to the empty square
         flips = (flip for direction in self.__directions
                       for flip in self._get_flips(move, direction, color))
@@ -122,6 +122,8 @@ class Board():
                 break
             elif self[x][y] == color and len(flips) > 1:
                 return flips
+            elif self[x][y] == color and len(flips) <= 1:
+                return []
         return []
 
     @staticmethod

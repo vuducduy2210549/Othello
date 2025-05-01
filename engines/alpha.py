@@ -17,12 +17,13 @@ class AlphaEngine(Engine):
     num_dup = 0
     node_list = []
     branch_list = [0,0,0]
-    ply_maxmin = 4
-    ply_alpha = 4
+    
     """ Game engine that implements a simple fitness function maximizing the
     difference in number of pieces in the given color's favor. """
     def __init__(self):
         self.alpha_beta = False
+        self.ply_maxmin = 4
+        self.ply_alpha = 4
         print("Call alpha beta pruning\n")
 
     def get_move(self, board, color, move_num=None,
@@ -35,10 +36,11 @@ class AlphaEngine(Engine):
         # Return the best move according to our simple utility function:
         # which move yields the largest different in number of pieces for the
         # given color vs. the opponent?
+        print(self.ply_maxmin," ", self.ply_alpha," ", self.alpha_beta)
         if (self.alpha_beta == False):
-           score, finalmove = self._minmax(board, color, move_num, time_remaining, time_opponent, AlphaEngine.ply_maxmin)
+           score, finalmove = self._minmax(board, color, move_num, time_remaining, time_opponent, self.ply_maxmin)
         else:
-           score, finalmove = self._minmax_with_alpha_beta(board, color, move_num, time_remaining, time_opponent, AlphaEngine.ply_alpha)
+           score, finalmove = self._minmax_with_alpha_beta(board, color, move_num, time_remaining, time_opponent, self.ply_alpha)
        # print "final move" + str(finalmove) + "final score: " + str(score) + "number of nodes:" + str(StudentEngine.num_node) + "number of duplicate" + str(StudentEngine.num_dup) + str(StudentEngine.node_list)# + str(self.cornerweight(color, board)) + "get cost:" + str(self._get_cost(board, color))
         #print "ply = 3" + str(StudentEngine.branch_list[0]) + "ply =2" + str(StudentEngine.branch_list[1]) + "ply = 1" + str(StudentEngine.branch_list[2])
         return finalmove
@@ -51,7 +53,7 @@ class AlphaEngine(Engine):
         #   return board.count(color), None
         moves = board.get_legal_moves(color)
         if move_num > 7 and move_num < 15:
-           AlphaEngine.ply_maxmin = 2
+           self.ply_maxmin = 2
         if time_remaining < 20:
            return (0, max(moves, key=lambda move: self.greedy(board, color, move)) )
 
@@ -274,4 +276,4 @@ class AlphaEngine(Engine):
         # Return the difference in number of pieces
         return num_pieces_me - num_pieces_op
 
-engine = AlphaEngine()
+engine = AlphaEngine

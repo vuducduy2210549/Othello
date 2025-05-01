@@ -127,8 +127,10 @@ if __name__ == '__main__':
     parser.add_argument("white_engine", type=str, nargs=1, help="white engine (human, minimax, alpha)")
     parser.add_argument("-aB", action="store_true", help="turn on alpha-beta pruning for the black player")
     parser.add_argument("-aW", action="store_true", help="turn on alpha-beta pruning for the white player")
-    parser.add_argument("-t", type=int, default=30, help="adjust time limit")
+    parser.add_argument("-t", type=int, default=300, help="adjust time limit")
     parser.add_argument("-v", action="store_true", help="display the board on each turn")
+    parser.add_argument("-lB", type=int, default=4, help="adjust level of minimax")
+    parser.add_argument("-lW", type=int, default=4, help="adjust level of minimax")
     args = parser.parse_args()
 
     black_engine = args.black_engine[0]
@@ -139,14 +141,24 @@ if __name__ == '__main__':
     try:
         engines_b = importlib.import_module(f"engines.{black_engine}")
         engines_w = importlib.import_module(f"engines.{white_engine}")
-        engine_b = getattr(engines_b, 'engine')
-        engine_w = getattr(engines_w, 'engine')
+        # engine_b = getattr(engines_b, 'engine')
+        # engine_w = getattr(engines_w, 'engine')
+        engine_b = engines_b.engine()  # Create instance for black
+        engine_w = engines_w.engine()  # Create instance for white
 
         if args.aB and black_engine not in {"greedy", "human", "random"}:
             engine_b.alpha_beta = True
         if args.aW and white_engine not in {"greedy", "human", "random"}:
             engine_w.alpha_beta = True
-
+            
+        if args.lB and black_engine not in {"greedy", "human", "random"}:
+            engine_b.ply_maxmin = engine_b.ply_alpha = args.lB
+            
+        if args.lW and white_engine not in {"greedy", "human", "random"}:
+            engine_w.ply_maxmin = engine_w.ply_alpha = args.lW
+            
+            
+        
         v = args.v or white_engine == "human" or black_engine == "human"
 
         print(f"{player[-1]} vs. {player[1]}\n")

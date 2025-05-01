@@ -31,4 +31,4 @@ class GreedyEngine(Engine):
         # Return the difference in number of pieces
         return num_pieces_me - num_pieces_op
 
-engine = GreedyEngine()
+engine = GreedyEngine

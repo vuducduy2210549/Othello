@@ -49,4 +49,4 @@ class HumanEngine(Engine):
                     return move
         return None
 
-engine = HumanEngine()
+engine = HumanEngine
