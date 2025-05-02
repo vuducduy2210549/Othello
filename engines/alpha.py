@@ -36,7 +36,7 @@ class AlphaEngine(Engine):
         # Return the best move according to our simple utility function:
         # which move yields the largest different in number of pieces for the
         # given color vs. the opponent?
-        print(self.ply_maxmin," ", self.ply_alpha," ", self.alpha_beta)
+        # print(self.ply_maxmin," ", self.ply_alpha," ", self.alpha_beta)
         if (self.alpha_beta == False):
            score, finalmove = self._minmax(board, color, move_num, time_remaining, time_opponent, self.ply_maxmin)
         else:
