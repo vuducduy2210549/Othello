@@ -232,8 +232,12 @@ if __name__ == '__main__':
         v = args.v or white_engine == "human" or black_engine == "human"
         if args.dup:
             print(f"{player[-1]} vs. {player[1]}\n")
+            start_time = timeit.default_timer()
             for index in range(args.dup):
                 dupmain(engine_w, engine_b, game_time=args.t, verbose=v, index=index+1)
+            end_time = timeit.default_timer()
+            time_left = round(end_time - start_time, 1)
+            print(f"It took {time_left}s")
         else:
             print(f"{player[-1]} vs. {player[1]}\n")
             main(engine_w, engine_b, game_time=args.t, verbose=v)
