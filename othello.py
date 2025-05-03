@@ -234,10 +234,14 @@ if __name__ == '__main__':
             print(f"{player[-1]} vs. {player[1]}\n")
             start_time = timeit.default_timer()
             for index in range(args.dup):
+                prev_temp_end_time = timeit.default_timer()
                 dupmain(engine_w, engine_b, game_time=args.t, verbose=v, index=index+1)
+                temp_end_time = timeit.default_timer()
+                temp_time_left = round(temp_end_time - prev_temp_end_time, 1)
+                print(f"It took {temp_time_left}s")
             end_time = timeit.default_timer()
             time_left = round(end_time - start_time, 1)
-            print(f"It took {time_left}s")
+            print(f"\nRun {args.dup} tests in {time_left}s")
         else:
             print(f"{player[-1]} vs. {player[1]}\n")
             main(engine_w, engine_b, game_time=args.t, verbose=v)
