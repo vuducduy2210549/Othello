@@ -150,8 +150,8 @@ class AlphaEngine(Engine):
         if not isinstance(moves, list):
            score = board.count(color)
            return score, None
-        moves.sort(key=lambda move: self.greedy(board, color, move), reverse=True)
-        moves = moves[:6] # Chỉ kiểm tra 6 node đầu 
+        moves.sort(key=lambda move: self.greedy(board, color, move), reverse=False)
+        #moves = moves[:6] # Chỉ kiểm tra 6 node đầu 
         #print ply
         return_move = moves[0]
         bestscore = - AlphaEngine.INFINITY
