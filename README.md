@@ -19,3 +19,4 @@ py othello.py <black_engine> <white_engine> [options]
 | `-v`        | Hiển thị bàn cờ sau mỗi lượt |
 | `-lB <int>` | Độ sâu thuật toán của người chơi đen. Mặc định: `4` |
 | `-lW <int>` | Độ sâu thuật toán của người chơi trắng. Mặc định: `4` |
+| `-dup <int>`| Số lần lặp lại khi chạy chương trình. Với lựa chọn này thì -v sẽ không còn tác dụng|
