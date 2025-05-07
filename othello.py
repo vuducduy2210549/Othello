@@ -2,9 +2,12 @@ import argparse
 import copy
 import signal
 import sys
+import time
 import timeit
 import importlib
 from board import Board, move_string, print_moves
+from UI import BOARD_SIZE, CELL_SIZE, setup_ui, update_hint, update_ui
+from engines.human import HumanEngine 
 
 player = {-1: "Black", 1: "White"}
 
@@ -17,15 +20,45 @@ def game(white_engine, black_engine, game_time=300.0, verbose=False):
     time_left = {-1: game_time, 1: game_time}
     engine = {-1: black_engine, 1: white_engine}
 
+    # Khởi tạo UI từ UI.py
+    root, canvas = setup_ui()
+
+    # Vẽ lần đầu
+    update_ui(canvas, board)
+    root.update()
+
+
     if verbose:
         print("INITIAL BOARD\n--\n")
         board.display(time_left)
+
+    clicked_move = None
+
+    def handle_click(event):
+        nonlocal clicked_move
+        row = event.y // CELL_SIZE
+        col = event.x // CELL_SIZE
+        color = -1 if move_num % 2 == 0 else 1 
+        
+        clicked_move = (col, BOARD_SIZE - 1 - row)
+        print(f"Clicked move: {clicked_move}")
+
+    canvas.bind("<Button-1>", handle_click)
 
     for move_num in range(60):
         moves = []
         for color in [-1, 1]:
             start_time = timeit.default_timer()
-            move = get_move(board, engine[color], color, move_num, time_left)
+            if isinstance(engine[color], HumanEngine):
+                clicked_move = None
+
+                update_hint(canvas, board.get_legal_moves(color))
+                while clicked_move is None:
+                    root.update()
+                    time.sleep(0.1) 
+                move = clicked_move
+            else:
+                move = get_move(board, engine[color], color, move_num, time_left)
             end_time = timeit.default_timer()
 
             time_left[color] -= round(end_time - start_time, 1)
@@ -36,7 +69,9 @@ def game(white_engine, black_engine, game_time=300.0, verbose=False):
             if move is not None:
                 board.execute_move(move, color)
                 moves.append(move)
-
+                update_ui(canvas, board)
+                root.update()
+                
                 if verbose:
                     print("--\n")
                     print(f"Round {move_num + 1}: {player[color]} plays in {move_string(move)}\n")
@@ -47,7 +82,7 @@ def game(white_engine, black_engine, game_time=300.0, verbose=False):
 
     print("FINAL BOARD\n--\n")
     board.display(time_left)
-
+    root.mainloop() 
     return board
 
 def dupgame(white_engine, black_engine, game_time=300.0):

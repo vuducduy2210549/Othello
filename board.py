@@ -16,6 +16,7 @@ class Board():
 
     def display(self, time):
         """" Display the board and the statistics of the ongoing game. """
+        legel_moves = self.get_legal_moves(-1)
         print("    A B C D E F G H")
         print("    ---------------")
         for y in range(7,-1,-1):
@@ -26,6 +27,8 @@ class Board():
                     print("B", end=' ')
                 elif piece == 1:
                     print("W", end=' ')
+                elif (x, y) in legel_moves:
+                    print("O", end=' ')
                 else:
                     print(".", end=' ')
             print('| ' + str(y+1))
