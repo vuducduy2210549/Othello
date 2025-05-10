@@ -53,7 +53,7 @@ frame.pack(fill="both", expand=True)
 label = tb.Label(frame, text="Othello Game Launcher", font=TITLE_FONT, bootstyle="info")
 label.grid(row=0, column=0, columnspan=2, pady=(0, 20))
 
-engines = ["human", "minimax", "alpha", "random"]
+engines = ["human", "minimax", "alpha", "random", "new_alpha"]
 black_var = tb.StringVar(value="human")
 white_var = tb.StringVar(value="minimax")
 

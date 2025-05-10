@@ -5,9 +5,9 @@ py othello.py <black_engine> <white_engine> [options]
 ```
 ## Tham số bắt buộc:
 
-<black_engine>: Tên engine cho quân đen (human, minimax, alpha)
+<black_engine>: Tên engine cho quân đen (human, minimax, alpha, random, new_alpha)
 
-<white_engine>: Tên engine cho quân trắng (human, minimax, alpha)
+<white_engine>: Tên engine cho quân trắng (human, minimax, alpha, random, new_alpha)
 
 ## Tùy chọn thêm:
 
