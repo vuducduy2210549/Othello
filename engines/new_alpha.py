@@ -13,16 +13,38 @@ class AlphaEngine(Engine):
                2, -1, 1, 0, 0, 1, -1, 2,
                -3, -4, -1, -1, -1, -1, -4, -3,
                4, -3, 2, 2, 2, 2, -3, 4]
+    PRE_WEIGHTS = [
+                0, -3, 0, 0, 0, 0, -3, 0,
+                -3, -3, 1, 1, 1, 1, -3, -3,
+                0, 1, 1, 2, 2, 1, 1, 0,
+                0, 1, 2, 3, 3, 2, 1, 0,
+                0, 1, 2, 3, 3, 2, 1, 0,
+                0, 1, 1, 2, 2, 1, 1, 0,
+                -3, -3, 1, 1, 1, 1, -3, -3,
+                0, -3, 0, 0, 0, 0, -3, 0]
     num_node = 0
     num_dup = 0
     node_list = []
     branch_list = [0,0,0]
+    num_move = 0
     
     def __init__(self):
         self.alpha_beta = False
         self.ply_maxmin = 4
         self.ply_alpha = 4
         print("Call alpha beta pruning\n")
+
+    def getWeight(self):
+        if self.num_move <= 20:
+            return AlphaEngine.PRE_WEIGHTS
+        return AlphaEngine.WEIGHTS
+
+    def setDefault(self):
+        self.num_node = 0
+        self.num_dup = 0
+        self.node_list = []
+        self.branch_list = [0,0,0]
+        self.num_move = 0
 
     def get_move(self, board, color, move_num=None,
                  time_remaining=None, time_opponent=None):
@@ -33,12 +55,17 @@ class AlphaEngine(Engine):
         # which move yields the largest different in number of pieces for the
         # given color vs. the opponent?
         # print(self.ply_maxmin," ", self.ply_alpha," ", self.alpha_beta)
-        if (self.alpha_beta == False):
-           score, finalmove = self._minmax(board, color, move_num, time_remaining, time_opponent, self.ply_maxmin)
+        if self.num_move <= 50:
+            if (self.alpha_beta == False):
+                score, finalmove = self._minmax(board, color, move_num, time_remaining, time_opponent, self.ply_maxmin)
+            else:
+                score, finalmove = self._minmax_with_alpha_beta(board, color, move_num, time_remaining, time_opponent, self.ply_alpha)
         else:
-           score, finalmove = self._minmax_with_alpha_beta(board, color, move_num, time_remaining, time_opponent, self.ply_alpha)
+            score, finalmove = self.max_score_move(board, color)
+        
        # print "final move" + str(finalmove) + "final score: " + str(score) + "number of nodes:" + str(StudentEngine.num_node) + "number of duplicate" + str(StudentEngine.num_dup) + str(StudentEngine.node_list)# + str(self.cornerweight(color, board)) + "get cost:" + str(self._get_cost(board, color))
         #print "ply = 3" + str(StudentEngine.branch_list[0]) + "ply =2" + str(StudentEngine.branch_list[1]) + "ply = 1" + str(StudentEngine.branch_list[2])
+        self.num_move += 1
         return finalmove
         #maxmin function created by hyl
     def _minmax(self, board, color, move_num, time_remaining, time_opponent, ply):
@@ -87,6 +114,20 @@ class AlphaEngine(Engine):
     #MAX_VALUE = StudentEngine.INFINITY
     #MIN_VALUE = -MAX_VALUE
 
+
+    def max_score_move(self, board, color):
+        moves = board.get_legal_moves(color)
+
+        bestscore = -AlphaEngine.INFINITY
+        bestmove = None
+        for move in moves:
+            newboard = deepcopy(board)
+            newboard.execute_move(move,color)
+            score = newboard.count(-color)
+            if score > bestscore:
+                bestscore = score
+                bestmove = move
+        return bestscore, bestmove
 
     def max_score(self, board, color, move_num, ply):
         #print "move_num" + str(move_num)
@@ -167,7 +208,11 @@ class AlphaEngine(Engine):
             newboard = deepcopy(board)
             newboard.execute_move(move,color)
             AlphaEngine.branch_list[0] +=1
+            # from move 0-20: use alpla_beta with PRE_WEIGHT
+            # from move 21-50: use alpla_beta with WEIGHT
+            # from move 50-  : just count number of chess in board
             score = self.min_score_alpha_beta(newboard, -color, move_num, ply-1, -AlphaEngine.INFINITY, AlphaEngine.INFINITY)
+
             if score > bestscore:
                bestscore = score
                return_move = move
@@ -184,17 +229,6 @@ class AlphaEngine(Engine):
         #moves.sort(key=lambda move: self.greedy(board, color, move), reverse=True)
 
         for move in moves:
-
-            #if (ply == 2):
-            #     StudentEngine.branch_list[1] += 1
-            #if (ply == 1):
-            #     StudentEngine.branch_list[2] += 1
-
-            #if move in StudentEngine.node_list:
-            #    StudentEngine.num_dup += 1
-            #if move not in StudentEngine.node_list:
-            #    StudentEngine.node_list.append(move)            
-            #StudentEngine.num_node += 1
             newboard = deepcopy(board)
             newboard.execute_move(move,color)
             score = self.min_score_alpha_beta(newboard, -color, move_num, ply-1, alpha, beta)
@@ -265,10 +299,10 @@ class AlphaEngine(Engine):
         i = 0
         while i < 64:
             if board[i//8][i%8] == color:
-               total += AlphaEngine.WEIGHTS[i]
+               total += self.getWeight()[i]
                #print "weights" + str(i) + "number:"+ str(StudentEngine.WEIGHTS[i])
             if board[i//8][i%8] == -color:
-               total -= AlphaEngine.WEIGHTS[i]
+               total -= self.getWeight()[i]
                #print "weights" + str(i) + "number:"+ str(StudentEngine.WEIGHTS[i])
             i += 1
         #print "cornerweight" + str(total)
