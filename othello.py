@@ -10,7 +10,8 @@ from UI import BOARD_SIZE, CELL_SIZE, setup_ui, update_hint, update_ui
 from engines.human import HumanEngine 
 
 player = {-1: "Black", 1: "White"}
-
+n_b_win = 0
+n_w_win = 0
 
 def game(white_engine, black_engine, game_time=300.0, verbose=False):
     """Run a single game. Raise RuntimeError in the event of time expiration.
@@ -191,9 +192,13 @@ def dupmain(white_engine, black_engine, game_time, verbose, index):
         bscore, wscore = str(stats[1]), str(stats[2])
 
         if stats[0] == -1:
+            global n_b_win
+            n_b_win += 1
             print(f"Test {index} - {player[-1]} wins the game! ({bscore}-{wscore})")
             return -1, int(bscore), int(wscore)
         elif stats[0] == 1:
+            global n_w_win
+            n_w_win += 1
             print(f"Test {index} - {player[1]} wins the game! ({wscore}-{bscore})")
             return 1, int(bscore), int(wscore)
         else:
@@ -269,14 +274,21 @@ if __name__ == '__main__':
             print(f"{player[-1]} vs. {player[1]}\n")
             start_time = timeit.default_timer()
             for index in range(args.dup):
+                if white_engine == "new_alpha":
+                    engine_w.setDefault()
+                if black_engine == "new_alpha":
+                    engine_b.setDefault()
+
                 prev_temp_end_time = timeit.default_timer()
                 dupmain(engine_w, engine_b, game_time=args.t, verbose=v, index=index+1)
                 temp_end_time = timeit.default_timer()
                 temp_time_left = round(temp_end_time - prev_temp_end_time, 1)
-                print(f"It took {temp_time_left}s")
+                print(f"\tIt took {temp_time_left}s")
             end_time = timeit.default_timer()
             time_left = round(end_time - start_time, 1)
             print(f"\nRun {args.dup} tests in {time_left}s")
+            print(f"\t{player[-1]} win {n_b_win} times")
+            print(f"\t{player[1]} win {n_w_win} times")
         else:
             print(f"{player[-1]} vs. {player[1]}\n")
             main(engine_w, engine_b, game_time=args.t, verbose=v)
