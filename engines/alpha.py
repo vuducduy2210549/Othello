@@ -18,8 +18,6 @@ class AlphaEngine(Engine):
     node_list = []
     branch_list = [0,0,0]
     
-    """ Game engine that implements a simple fitness function maximizing the
-    difference in number of pieces in the given color's favor. """
     def __init__(self):
         self.alpha_beta = False
         self.ply_maxmin = 4
@@ -28,8 +26,6 @@ class AlphaEngine(Engine):
 
     def get_move(self, board, color, move_num=None,
                  time_remaining=None, time_opponent=None):
-        """ Return a move for the given color that maximizes the difference in 
-        number of pieces for that color. """
         # Get a list of all legal moves.
         # moves = board.get_legal_moves(color)
 
@@ -59,7 +55,7 @@ class AlphaEngine(Engine):
 
         #print "leagal move" + str(moves)
         if not isinstance(moves, list):
-           score = self.heuristic(board, color)
+           score = self.heuristic(board, color, move_num)
            return score,None
         #if time_remaining < 10:
         #   return (0, max(moves, key=lambda move: self.greedy(board, color, move)) )
@@ -99,7 +95,7 @@ class AlphaEngine(Engine):
         #   return board.count(color)
         if ply == 0:
            #StudentEngine.num_node += 1
-           return self.heuristic(board, color)
+           return self.heuristic(board, color, move_num)
         bestscore = -AlphaEngine.INFINITY
         for move in moves:
             #if move in StudentEngine.node_list:
@@ -125,7 +121,7 @@ class AlphaEngine(Engine):
         #   return board.count(color)
         if ply == 0:
            #StudentEngine.num_node += 1
-           return self.heuristic(board, color)
+           return self.heuristic(board, color, move_num)
         bestscore = AlphaEngine.INFINITY
         for move in moves:
             if move in AlphaEngine.node_list:
@@ -150,7 +146,8 @@ class AlphaEngine(Engine):
         if not isinstance(moves, list):
            score = board.count(color)
            return score, None
-
+        moves.sort(key=lambda move: self.greedy(board, color, move), reverse=False)
+        #moves = moves[:6] # Chỉ kiểm tra 6 node đầu 
         #print ply
         return_move = moves[0]
         bestscore = - AlphaEngine.INFINITY
@@ -181,9 +178,13 @@ class AlphaEngine(Engine):
     def max_score_alpha_beta(self, board, color, move_num, ply, alpha, beta):
         if ply == 0:
             #StudentEngine.num_node +=1
-            return self.heuristic(board, color)
+            return self.heuristic(board, color, move_num)
         bestscore = -AlphaEngine.INFINITY
-        for move in board.get_legal_moves(color):
+        moves = board.get_legal_moves(color)
+        #moves.sort(key=lambda move: self.greedy(board, color, move), reverse=True)
+
+        for move in moves:
+
             #if (ply == 2):
             #     StudentEngine.branch_list[1] += 1
             #if (ply == 1):
@@ -205,11 +206,14 @@ class AlphaEngine(Engine):
         return bestscore
 
     def min_score_alpha_beta(self, board, color, move_num, ply, alpha, beta):
-          if ply == 0:
+        if ply == 0:
              #StudentEngine.num_node +=1
-             return self.heuristic(board, color)
-          bestscore = AlphaEngine.INFINITY
-          for move in board.get_legal_moves(color):
+            return self.heuristic(board, color, move_num)
+        bestscore = AlphaEngine.INFINITY
+        moves = board.get_legal_moves(color)
+        #moves.sort(key=lambda move: self.greedy(board, color, move), reverse=True)
+
+        for move in moves:
               #if (ply == 2):
               #   StudentEngine.branch_list[1] += 1
               #if (ply == 1):
@@ -219,19 +223,43 @@ class AlphaEngine(Engine):
               #if move not in StudentEngine.node_list:
               #   StudentEngine.node_list.append(move)
               #StudentEngine.num_node += 1
-              newboard = deepcopy(board)
-              newboard.execute_move(move,color)
-              score = self.max_score_alpha_beta(newboard, -color, move_num, ply-1, alpha, beta)
-              if score < bestscore:
-                 bestscore = score
-              if bestscore <= alpha:
-                 return bestscore
-              beta = min(beta,bestscore)
-          return bestscore
+            newboard = deepcopy(board)
+            newboard.execute_move(move,color)
+            score = self.max_score_alpha_beta(newboard, -color, move_num, ply-1, alpha, beta)
+            if score < bestscore:
+                bestscore = score
+            if bestscore <= alpha:
+                return bestscore
+            beta = min(beta,bestscore)
+        return bestscore
 
-    def heuristic(self, board, color):
-        return  2* self.cornerweight(color, board) + 3* self._get_cost(board, color)
+    def heuristic(self, board, color, move_num):
+        move_count = move_num  
+        mobility = len(board.get_legal_moves(color)) - len(board.get_legal_moves(-color))
+        frontier = -self.frontier_discs(board, color)
+        corner = self.cornerweight(color, board)
+        piece_diff = self._get_cost(board, color)
 
+        if move_count < 20:  
+            return 4 * mobility + 3 * frontier + 2 * corner
+        elif move_count < 50:  
+            return 3 * mobility + 2 * frontier + 3 * corner + piece_diff
+        else:  
+            return 5 * piece_diff + 3 * corner
+
+    def frontier_discs(self, board, color):
+        frontier = 0
+        directions = [(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)]
+        for r in range(8):
+            for c in range(8):
+                if board[r][c] == color:
+                    for dr, dc in directions:
+                        nr, nc = r + dr, c + dc
+                        if 0 <= nr < 8 and 0 <= nc < 8 and board[nr][nc] == 0:
+                            frontier += 1
+                            break
+        return frontier
+    
     def cornerweight(self, color, board):
         total = 0
         i = 0
@@ -247,8 +275,6 @@ class AlphaEngine(Engine):
         return total
 
     def greedy(self, board, color, move):
-        """ Return the difference in number of pieces after the given move 
-        is executed. """
 
         # Create a deepcopy of the board to preserve the state of the actual board
         newboard = deepcopy(board)
@@ -262,8 +288,6 @@ class AlphaEngine(Engine):
         return num_pieces_me - num_pieces_op
 
     def _get_cost(self, board, color):
-        """ Return the difference in number of pieces after the given move 
-        is executed. """
 
         # Create a deepcopy of the board to preserve the state of the actual board
         #newboard = deepcopy(board)
