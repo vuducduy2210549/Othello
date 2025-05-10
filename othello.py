@@ -57,6 +57,7 @@ def game(white_engine, black_engine, game_time=300.0, verbose=False):
                     root.update()
                     time.sleep(0.1) 
                 move = clicked_move
+                canvas.delete("hint")
             else:
                 move = get_move(board, engine[color], color, move_num, time_left)
             end_time = timeit.default_timer()
