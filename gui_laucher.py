@@ -53,7 +53,7 @@ frame.pack(fill="both", expand=True)
 label = tb.Label(frame, text="Othello Game Launcher", font=TITLE_FONT, bootstyle="info")
 label.grid(row=0, column=0, columnspan=2, pady=(0, 20))
 
-engines = ["human", "minimax", "alpha", "random", "new_alpha"]
+engines = ["human", "minimax", "alpha", "random", "new_alpha", "qlearning"]
 black_var = tb.StringVar(value="human")
 white_var = tb.StringVar(value="minimax")
 
@@ -65,8 +65,8 @@ tb.Combobox(frame, textvariable=white_var, values=engines, state="readonly").gri
 
 ab_b_var = tb.BooleanVar()
 ab_w_var = tb.BooleanVar()
-tb.Checkbutton(frame, text="Black Alpha-Beta", variable=ab_b_var).grid(row=3, column=0, sticky="w", pady=6)
-tb.Checkbutton(frame, text="White Alpha-Beta", variable=ab_w_var).grid(row=3, column=1, sticky="w", pady=6)
+tb.Checkbutton(frame, text="Black Alpha-Beta Cut-off", variable=ab_b_var).grid(row=3, column=0, sticky="w", pady=6)
+tb.Checkbutton(frame, text="White Alpha-Beta Cut-off", variable=ab_w_var).grid(row=3, column=1, sticky="w", pady=6)
 
 verbose_var = tb.BooleanVar()
 tb.Checkbutton(frame, text="Verbose Output", variable=verbose_var).grid(row=4, column=0, sticky="w", pady=6)
